@@ -9,6 +9,10 @@ $(scionjar) :
 scion.dll : $(scionjar)
 	ikvmc -out:scion.dll $(scionjar) $(scionjava)/lib/js.jar
 
+clean : 
+	cd $(scionjava); make clean
+	rm scion.dll
+
 test/Test.exe :
 	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
 
