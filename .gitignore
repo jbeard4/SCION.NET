@@ -1,3 +1,4 @@
 *.sw*
 scion.dll
 test/Test.exe
+test/TestServer.exe
