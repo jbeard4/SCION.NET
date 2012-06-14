@@ -1,0 +1,3 @@
+[submodule "lib/SCION-Java"]
+	path = lib/SCION-Java
+	url = git://github.com/jbeard4/SCION-Java.git
