@@ -2,4 +2,4 @@
 
 **SCION.NET** provides lightweight bindings to the SCION library for CLR languages (C#, etc.), via [ikvm](http://www.ikvm.net/) and [Rhino](http://www.mozilla.org/rhino/). This allows SCXML to easily be used in .NET development.
 
-For a basic usage example of usage, see [Test.cs](https://github.com/jbeard4/pySCION/blob/master/test/Test.cs)
+For a basic usage example of usage, see [Test.cs](https://github.com/jbeard4/SCION.NET/blob/master/test/Test.cs)
