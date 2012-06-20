@@ -9,14 +9,19 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            System.Console.WriteLine("Here 1");
             SCXML scxml = new SCXML("/home/jbeard/workspace/scion/scxml-test-framework/test/basic/basic1.scxml");
             System.Console.WriteLine(scxml);
-            List<string> initialConfiguration = scxml.Start();
+            IList<string> initialConfiguration = scxml.Start();
             System.Console.WriteLine(initialConfiguration);
+            foreach (string stateId in initialConfiguration){
+                System.Console.WriteLine(stateId);
+            } 
 
-            List<string> nextConfiguration = scxml.Gen("t",null);
+            IList<string> nextConfiguration = scxml.Gen("t",null);
             System.Console.WriteLine(nextConfiguration);
+            foreach (string stateId in nextConfiguration){
+                System.Console.WriteLine(stateId);
+            } 
         }
     }
 }

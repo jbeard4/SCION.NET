@@ -15,11 +15,11 @@ SCION/SCXML.dll : SCION/SCXML.cs
 SCION.dll : SCION/SCXML.dll scion.dll
 	~/Downloads/ILRepack.exe -out:SCION.dll SCION/SCXML.dll scion.dll
 
-test/Test.exe : SCION.dll
-	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:SCION.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
+test/Test.exe : SCION/SCXML.dll scion.dll test/Test.cs
+	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,SCION/SCXML.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
 
 run-test : test/Test.exe
-	MONO_PATH=. test/Test.exe
+	MONO_PATH=.:SCION test/Test.exe
 
 test/TestServer.exe :
 	gmcs -lib:/usr/lib/cli/ikvm-0.40/,.,test/lib/Json.NET/Net35/  -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll,Newtonsoft.Json.dll test/TestServer.cs
