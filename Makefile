@@ -1,34 +1,49 @@
 scionjava = lib/SCION-Java
 scionjar = $(scionjava)/build/jar/scion.jar
+sciondll = build/scion-java/scion.dll
+scionbinding = build/scion-binding/SCXML.dll
+sciondotnet = build/scion.net/SCION.dll
+testscript = build/test/Test.exe
+testserver = build/test/TestServer.exe
+
+#environment can override with paths to compilers and other tools
+ILREPACK = ~/Downloads/ILRepack.exe	
+MCS = gmcs
+IKVMC = ikvmc
 
 all : run-test
 
 $(scionjar) :
+	mkdir -p $(dir $(scionjar))
 	cd $(scionjava); make jar
 
-scion.dll : $(scionjar)
-	ikvmc -out:scion.dll $(scionjar) $(scionjava)/lib/js.jar
+$(sciondll)  : $(scionjar)
+	mkdir -p $(dir $(sciondll))
+	$(IKVMC) -out:$(sciondll) $(scionjar) $(scionjava)/lib/js.jar
 
-SCION/SCXML.dll : SCION/SCXML.cs
-	gmcs -t:library -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll SCION/SCXML.cs
+$(scionbinding) : SCION/SCXML.cs
+	mkdir -p $(dir $(scionbinding))
+	$(MCS) -out:$(scionbinding) -t:library -lib:/usr/lib/cli/ikvm-0.40/,$(dir $(sciondll)) -r:$(sciondll),IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll SCION/SCXML.cs
 
-SCION.dll : SCION/SCXML.dll scion.dll
-	~/Downloads/ILRepack.exe -out:SCION.dll SCION/SCXML.dll scion.dll
+$(sciondotnet) : $(sciondll) $(scionbinding)
+	mkdir -p $(dir $(sciondotnet))
+	$(ILREPACK) -out:$(sciondotnet) $(sciondll) $(scionbinding)
 
-test/Test.exe : SCION/SCXML.dll scion.dll test/Test.cs
-	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,SCION/SCXML.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
+$(testscript) : $(sciondotnet) test/Test.cs
+	mkdir -p $(dir $(testscript))
+	$(MCS) -out:$(testscript) -lib:/usr/lib/cli/ikvm-0.40/,$(dir $(sciondotnet)) -r:$(sciondotnet),IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
 
-run-test : test/Test.exe
-	MONO_PATH=.:SCION test/Test.exe
+run-test : $(testscript)
+	MONO_PATH=$(dir $(sciondotnet)) $(testscript)
 
-test/TestServer.exe :
-	gmcs -lib:/usr/lib/cli/ikvm-0.40/,.,test/lib/Json.NET/Net35/  -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll,Newtonsoft.Json.dll test/TestServer.cs
+$(testserver) :
+	$(MCS) -out:$(testserver) -lib:/usr/lib/cli/ikvm-0.40/,test/lib/Json.NET/Net35/,$(dir $(sciondotnet))  -r:$(sciondotnet),IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll,Newtonsoft.Json.dll test/TestServer.cs
 
-run-test-server : test/TestServer.exe
-	MONO_PATH=.:test/lib/Json.NET/Net35/ ./test/TestServer.exe
+run-test-server : $(testserver)
+	MONO_PATH=test/lib/Json.NET/Net35/:$(dir $(sciondotnet)) $(testserver)
 
 clean : 
 	cd $(scionjava); make clean
-	rm scion.dll SCION/SCXML.dll SCION.dll
+	rm -rf build
 
 .PHONY : run-test-server run-test all clean
