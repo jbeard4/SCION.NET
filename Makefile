@@ -9,12 +9,14 @@ $(scionjar) :
 scion.dll : $(scionjar)
 	ikvmc -out:scion.dll $(scionjar) $(scionjava)/lib/js.jar
 
-clean : 
-	cd $(scionjava); make clean
-	rm scion.dll
+SCION/SCXML.dll : SCION/SCXML.cs
+	gmcs -t:library -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll SCION/SCXML.cs
 
-test/Test.exe :
-	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:scion.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
+SCION.dll : SCION/SCXML.dll scion.dll
+	~/Downloads/ILRepack.exe -out:SCION.dll SCION/SCXML.dll scion.dll
+
+test/Test.exe : SCION.dll
+	gmcs -lib:/usr/lib/cli/ikvm-0.40/,. -r:SCION.dll,IKVM.Runtime.dll,IKVM.OpenJDK.Core.dll test/Test.cs
 
 run-test : test/Test.exe
 	MONO_PATH=. test/Test.exe
@@ -24,5 +26,9 @@ test/TestServer.exe :
 
 run-test-server : test/TestServer.exe
 	MONO_PATH=.:test/lib/Json.NET/Net35/ ./test/TestServer.exe
+
+clean : 
+	cd $(scionjava); make clean
+	rm scion.dll SCION/SCXML.dll SCION.dll
 
 .PHONY : run-test-server run-test all clean

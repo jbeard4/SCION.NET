@@ -1,8 +1,7 @@
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 
-using com.inficon.scion;
-using java.util;
+using SCION;
 
 namespace Test
 {
@@ -10,17 +9,14 @@ namespace Test
     {
         public static void Main(string[] args)
         {
+            System.Console.WriteLine("Here 1");
             SCXML scxml = new SCXML("/home/jbeard/workspace/scion/scxml-test-framework/test/basic/basic1.scxml");
             System.Console.WriteLine(scxml);
-            Object initialConfiguration = scxml.start();
+            List<string> initialConfiguration = scxml.Start();
             System.Console.WriteLine(initialConfiguration);
 
-            Set nextConfiguration = scxml.gen("t",null);
+            List<string> nextConfiguration = scxml.Gen("t",null);
             System.Console.WriteLine(nextConfiguration);
-            
-            Type t = initialConfiguration.GetType();
-            System.Console.WriteLine(t);
-            
         }
     }
 }
