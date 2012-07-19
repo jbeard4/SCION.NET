@@ -4,24 +4,20 @@ using  System.IO;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-using com.inficon.scion;
-using org.mozilla.javascript;
-using java.util;
-
+using SCION;
 //using com.inficon.scion;
 //using java.util;
 
 class TestServer{
-    public static string getResponseJson(int session,Set configuration){
+    public static string getResponseJson(int session,IList<string> configuration){
         string result = "{\"sessionToken\" : " + session + ", \"nextConfiguration\" : [";
 
-        Iterator e = configuration.iterator();
-        string stateId = (String) e.next();
-        result += "\"" + stateId + "\"";
-
-        while(e.hasNext()){
-            stateId = (String) e.next();
-            result += ",\"" + stateId + "\"";
+        for(int i=0; i < configuration.Count; i++){
+            string stateId = configuration[i];
+            result += "\"" + stateId + "\"";
+            if(i != configuration.Count - 1){
+                result += ",";
+            }
         }
         
         result += "]}";
@@ -69,15 +65,15 @@ class TestServer{
                     Console.WriteLine("Loading new statechart");
 
                     string scxmlStr = scxmlToken.ToString();
-                    Scriptable model = SCXML.documentStringToModel(scxmlStr);
-                    SCXML scxml = new SCXML(model);
-                    Set initialConfiguration = scxml.start();
+                    SCXML scxml = new SCXML(new System.Uri(scxmlStr));
+                    IList<string> initialConfiguration = scxml.Start();
 
                     sessionToken = sessionCounter++;
                     sessions[sessionToken] = scxml;
 
                     // Construct a response.
                     string responseString = TestServer.getResponseJson(sessionToken,initialConfiguration);
+                    System.Console.WriteLine(responseString);
                     byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                     // Get a response stream and write the response to it.
                     response.ContentLength64 = buffer.Length;
@@ -87,7 +83,7 @@ class TestServer{
                     string eventName = (string) reqJson["event"]["name"];
                     sessionToken = (int) reqJson["sessionToken"];
                     
-                    Set nextConfiguration = sessions[sessionToken].gen(eventName,null);
+                    IList<string> nextConfiguration = sessions[sessionToken].Gen(eventName,null);
 
                     string responseString = TestServer.getResponseJson(sessionToken,nextConfiguration);
                     byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);

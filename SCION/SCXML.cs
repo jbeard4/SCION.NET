@@ -125,6 +125,10 @@ namespace SCION
             return new Model((Scriptable) SCXML.scion.documentStringToModel(docString));
         }
 
+        public static Model UriToModel(Uri uri){
+            return new Model((Scriptable) SCXML.scion.urlToModel(uri.ToString()));
+        }
+
         //constructor
         public SCXML(Model model){
             this.interpreter = (Scriptable) scion.createScionInterpreter(model.getModel());
@@ -137,6 +141,11 @@ namespace SCION
 
         public SCXML(XmlDocument doc){
             Model m = SCXML.DocumentToModel(doc);
+            this.interpreter = (Scriptable) scion.createScionInterpreter(m.getModel());
+        }   
+
+        public SCXML(Uri uri){
+            Model m = SCXML.UriToModel(uri);
             this.interpreter = (Scriptable) scion.createScionInterpreter(m.getModel());
         }   
 

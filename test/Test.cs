@@ -9,7 +9,7 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            SCXML scxml = new SCXML("/home/jbeard/workspace/scion/scxml-test-framework/test/basic/basic1.scxml");
+            SCXML scxml = new SCXML("./lib/SCION-Java/js-lib/SCION/test/scxml-test-framework/test/basic/basic1.scxml");
             System.Console.WriteLine(scxml);
             IList<string> initialConfiguration = scxml.Start();
             System.Console.WriteLine(initialConfiguration);
